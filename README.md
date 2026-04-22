@@ -22,7 +22,7 @@ Usage: flatter [-h] [-v] [-alpha ALPHA | -rhf RHF | -delta DELTA] [-logcond LOGC
 	-logcond LOGCOND -	Bound on condition number.
 ```
 
-flatter reduces lattice bases specified in the fplll format.
+flatter reduces lattice bases specified in the [fplll](https://github.com/fplll/fplll) format.
 ```
 $ latticegen q 4 2 10 b | flatter
 [[4 -1 1 0]
@@ -80,14 +80,19 @@ $ python scripts/visualize_profile.py ./log
 ![](docs/visualizer.png)
 
 # Installation
+To install `flatter` system-wide, execute:
+```bash
+sudo apt install libgmp-dev libmpfr-dev fplll-tools libfplll-dev libeigen3-dev libopenblas-dev
+mkdir build && cd ./build
+cmake ..
+make
+sudo make install
+sudo ldconfig
 ```
-$ sudo apt install libgmp-dev libmpfr-dev fplll-tools \
-	libfplll-dev libeigen3-dev libopenblas-dev
-$ mkdir build && cd ./build
-$ cmake ..
-$ make
-$ sudo make install
-$ sudo ldconfig
+
+If executing `$ flatter` gives the following error "flatter: error while loading shared libraries: libflatter.so: cannot open shared object file: No such file or directory", append the following line to your `~/.bashrc`:
+```bash
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
 ```
 
 # License
