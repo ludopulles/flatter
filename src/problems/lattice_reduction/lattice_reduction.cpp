@@ -64,12 +64,14 @@ void LatticeReduction::configure(const LatticeReductionParams& p,
     latred = nullptr;
 
 
-    bool fplll = true;
-    char* env_proved = std::getenv("FLATTER_NOFPLLL");
-    if (env_proved != nullptr) {
-        fplll = false;
-    }
+    // Define environment variable 'FLATTER_NOFPLLL' to avoid FPLLL usage.
+    bool use_fplll = std::getenv("FLATTER_NOFPLLL") == nullptr;
+
+    // There are only 4 phases.
+    assert(0 <= p.phase && p.phase <= 3);
+
     if (n <= 2) {
+        // Base case: dimension <= 2.
         if (p.B2.nrows() != 0) {
             latred = new LatticeReductionImpl::LatRedRelSR(p, cc);
         } else if (prec < 1400 && n == 2 && m == 2) {
@@ -77,53 +79,47 @@ void LatticeReduction::configure(const LatticeReductionParams& p,
         } else {
             latred = new LatticeReductionImpl::Schoenhage(p, cc);
         }
-    } else {
-        if (p.proved) {
-            if (p.B2.nrows() != 0) {
-                latred = new LatticeReductionImpl::LatRedRelSR(p, cc);
-            } else if (p.is_upper_triangular() && p.lvalid > 0 && p.lvalid == p.rvalid) {
-                latred = new LatticeReductionImpl::Proved3(p, cc);
-            } else if (p.is_upper_triangular()) {
-                latred = new LatticeReductionImpl::Proved2(p, cc);
-            } else {
-                latred = new LatticeReductionImpl::Proved1(p, cc);
-            }
+    } else if (p.proved) {
+        // Proven LLL-reduction
+        if (p.B2.nrows() != 0) {
+            latred = new LatticeReductionImpl::LatRedRelSR(p, cc);
+        } else if (p.is_upper_triangular() && p.lvalid > 0 && p.lvalid == p.rvalid) {
+            latred = new LatticeReductionImpl::Proved3(p, cc);
+        } else if (p.is_upper_triangular()) {
+            latred = new LatticeReductionImpl::Proved2(p, cc);
         } else {
-            if (p.phase == 0) {
-                latred = new LatticeReductionImpl::Irregular(p, cc);
-            } else if (p.phase == 1) {
-                if (p.log_cond == 0) {
-                    // Condition number is unknown
-                    latred = new LatticeReductionImpl::CondUnknown(p, cc);
-                } else {
-                    // Condition number is known, basis is guaranteed to be nonsingular
-                    latred = new LatticeReductionImpl::Heuristic1(p, cc);
-                }
-            } else if (p.phase > 1) {
-                if (n <= 32 && prec <= 128 && fplll) {
-                    if (p.B2.nrows() != 0) {
-                        latred = new LatticeReductionImpl::LatRedRelSR(p, cc);
-                    } else {
-                        latred = new LatticeReductionImpl::FPLLL(p, cc);
-                    }
-                } else {
-                    if (p.phase == 2) {
-                        latred = new LatticeReductionImpl::Heuristic2(p, cc);
-                    } else if (p.phase  == 3) {
-                        if (p.B2.nrows() != 0) {
-                            latred = new LatticeReductionImpl::LatRedRelSR(p, cc);
-                        } else {
-                            if (cc.is_threaded()) {
-                                latred = new LatticeReductionImpl::Threaded3(p, cc);
-                            } else {
-                                latred = new LatticeReductionImpl::Heuristic3(p, cc);
-                            }
-                        }
-                    }
-                }
-            } else {
-                assert(0);
-            }
+            latred = new LatticeReductionImpl::Proved1(p, cc);
+        }
+    } else if (p.phase == 0) {
+        // Phase 0: irregular lattice reduction
+        latred = new LatticeReductionImpl::Irregular(p, cc);
+    } else if (p.phase == 1) {
+        // Phase 1: heuristic lattice reduction
+        if (p.log_cond == 0) {
+            // Condition number is unknown
+            latred = new LatticeReductionImpl::CondUnknown(p, cc);
+        } else {
+            // Condition number is known, basis is guaranteed to be nonsingular
+            latred = new LatticeReductionImpl::Heuristic1(p, cc);
+        }
+    } else if (n <= 32 && prec <= 128 && use_fplll) {
+        if (p.B2.nrows() != 0) {
+            latred = new LatticeReductionImpl::LatRedRelSR(p, cc);
+        } else {
+            // Reduce small lattices using FPLLL
+            latred = new LatticeReductionImpl::FPLLL(p, cc);
+        }
+    } else if (p.phase == 2) {
+        // Phase 2: heuristic lattice reduction
+        latred = new LatticeReductionImpl::Heuristic2(p, cc);
+    } else if (p.phase == 3) {
+        if (p.B2.nrows() != 0) {
+            latred = new LatticeReductionImpl::LatRedRelSR(p, cc);
+        } else if (cc.is_threaded()) {
+            latred = new LatticeReductionImpl::Threaded3(p, cc);
+        } else {
+            // Phase 3: heuristic lattice reduction
+            latred = new LatticeReductionImpl::Heuristic3(p, cc);
         }
     }
 

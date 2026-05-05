@@ -238,20 +238,7 @@ int main(int argc, char** argv) {
 
   auto start = std::chrono::high_resolution_clock::now();
 
-  if (omp_get_active_level() == 0) {
-      #pragma omp parallel num_threads(cc.nthreads())
-      {
-          #pragma omp single
-          {
-            latred.solve();
-          }
-      }
-  } else {
-      #pragma omp taskgroup
-      {
-        latred.solve();
-      }
-  }
+  latred.solve();
   L.update_rank();
  
   auto elapsed = std::chrono::high_resolution_clock::now() - start;
