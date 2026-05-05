@@ -55,7 +55,7 @@ Profile Profile::subprofile(unsigned int start, unsigned int end) {
 }
 
 double Profile::get_drop() const {
-    assert (is_valid_);
+    assert(is_valid_);
 
     // Calculate how many bits are needed
     double *max_from_left = new double[n];
@@ -82,7 +82,7 @@ double Profile::get_drop() const {
 }
 
 double Profile::get_spread() const {
-    assert (is_valid_);
+    assert(is_valid_);
 
     // Calculate how many bits are needed
     double *max_from_left = new double[n];

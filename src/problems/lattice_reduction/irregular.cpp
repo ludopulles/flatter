@@ -43,8 +43,8 @@ void Irregular::configure(const LatticeReductionParams& p, const ComputationCont
 
     Base::configure(p, cc);
 
-    assert(M.is_transposed() == false);
-    assert(U.is_transposed() == false);
+    assert(!M.is_transposed());
+    assert(!U.is_transposed());
     assert(M.type() == ElementType::MPZ || M.type() == ElementType::INT64);
     assert(U.type() == ElementType::MPZ || U.type() == ElementType::INT64);
 

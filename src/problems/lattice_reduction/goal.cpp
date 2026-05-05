@@ -14,7 +14,7 @@ LatticeReductionGoal::LatticeReductionGoal() {
 
 LatticeReductionGoal::LatticeReductionGoal(unsigned int n, double quality, bool proved) {
     this->proved = proved;
-    assert (this->proved == false);
+    assert(!this->proved);
     this->n = n;
     this->quality = quality;
     this->best_slope = BKZ_BEST_SLOPE;
@@ -161,7 +161,7 @@ double LatticeReductionGoal::get_slope() {
 }
 
 void LatticeReductionGoal::set_best_slope(double slope) {
-    assert (proved == false);
+    assert(!proved);
     // Need to change quality as well
     double lgn = log2(n);
     double s_guess = 3 * (1 + pow(3, lgn+1) - pow(2, lgn+2))/2;

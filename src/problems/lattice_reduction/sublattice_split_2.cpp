@@ -97,19 +97,13 @@ SublatticeSplit* SubSplitPhase2::get_child_split(unsigned int i) {
 
 bool SubSplitPhase2::stopping_point() {
     if (n == 3) {
-        if (iter <= 1) {
-            return false;
-        }
-    } else {
-        if (iter <= 2) {
-            return false;
-        }
+        return iter > 1;
     }
-    return true;
+    return iter > 2;
 }
 
 unsigned int SubSplitPhase2::next_smaller(unsigned int n) {
-    assert (n >= 2);
+    assert(n >= 2);
     if (n == 3) {
         return 2;
     }
