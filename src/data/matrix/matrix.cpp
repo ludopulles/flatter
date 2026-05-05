@@ -385,11 +385,11 @@ std::ostream& operator<<(std::ostream& os, Matrix& M) {
             os << elem_s;
             if (j < nrows - 1) {
                 os << " ";
-			}
+            }
 
             free(elem, strlen(elem) + 1);
         }
-		os << "]" << std::endl;
+        os << "]" << std::endl;
     }
     os << "]" << std::endl;
     return os;
