@@ -351,6 +351,9 @@ void CondUnknown::solve() {
 
     mon->profile_reset(std::min(m, n));
 
+    mon->debug("M before CondUnknown:\n");
+    debug_matrix();
+
     working_prec = 53;
     max_rank = std::min(M.nrows(), M.ncols());
     B = Matrix(ElementType::MPZ, M.nrows(), M.ncols());
@@ -368,6 +371,9 @@ void CondUnknown::solve() {
 
     Matrix::copy(M, B);
     this->params.L.update_rank();
+
+    mon->debug("M after CondUnknown:\n");
+    debug_matrix();
 
     log_end();
 }

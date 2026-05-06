@@ -22,6 +22,8 @@ public:
     const std::string param_headers();
     std::string get_param_values();
 
+    void debug_matrix(void);
+
 protected:
     LatticeReductionParams params;
 
@@ -39,6 +41,8 @@ protected:
     unsigned int m;
     unsigned int n;
     unsigned int prec;
+
+    void _debug_mat(Matrix *mat);
 };
 
 }

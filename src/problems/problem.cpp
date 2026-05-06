@@ -24,7 +24,7 @@ void Problem::log_start() {
 }
 
 void Problem::log_end() {
-    mon->end_problem(cc);
+    mon->end_problem(this->prob_name(), this->impl_name(), this->param_headers(), this->get_param_values(), cc);
 }
 
 }

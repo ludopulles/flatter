@@ -1,4 +1,4 @@
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Eigen3 5.0 REQUIRED NO_MODULE)
 
 target_sources(flatter
   PRIVATE

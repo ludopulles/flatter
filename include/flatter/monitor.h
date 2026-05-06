@@ -42,12 +42,15 @@ public:
     void start_problem(const std::string& prob, const std::string& impl,
                        const std::string& header, const std::string& params,
                        const ComputationContext& cc);
-    void end_problem(const ComputationContext& cc);
+    void end_problem(const std::string& prob, const std::string& impl,
+                       const std::string& header, const std::string& params,
+                       const ComputationContext& cc);
 
     void profile_reset(unsigned int dim);
     void profile_update(double* profile, unsigned int start, unsigned int end);
     void profile_update(double* profile, double* global_offsets, unsigned int start, unsigned int end);
     void precision_update(unsigned int pre, unsigned int start, unsigned int end);
+    void debug(const char* s, ...);
 
 private:
     Monitor();

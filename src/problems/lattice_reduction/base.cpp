@@ -1,6 +1,7 @@
 #include "problems/lattice_reduction/base.h"
 
 #include <cassert>
+#include <cstring>
 #include <sstream>
 
 namespace flatter {
@@ -63,6 +64,42 @@ void Base::configure(const LatticeReductionParams& p,
     this->n = M.ncols();
     this->prec = M.prec();
     this->cc = cc;
+}
+
+void Base::_debug_mat(Matrix *mat) {
+    unsigned int nrows = mat->nrows();
+    unsigned int ncols = mat->ncols();
+
+    MatrixData<mpz_t> dM = mat->data<mpz_t>();
+
+    void (*free)(void *, size_t);
+    mp_get_memory_functions (NULL, NULL, &free);
+
+    // We're printing in FPLLL format (row notation)
+    // but store the data in column notation, so print
+    // the transpose.
+    mon->debug("[");
+    for (unsigned int i = 0; i < ncols; i++) {
+        mon->debug("[");
+        for (unsigned int j = 0; j < nrows; j++) {
+            if (j) {
+                mon->debug(" ");
+            }
+
+            char* elem = mpz_get_str(nullptr, 10, dM(j, i));
+            mon->debug("%s", elem);
+            free(elem, strlen(elem) + 1);
+        }
+        mon->debug("]\n");
+    }
+    mon->debug("]\n");
+
+
+}
+
+void Base::debug_matrix() {
+    this->_debug_mat(&M);
+    this->_debug_mat(&U);
 }
 
 }

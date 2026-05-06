@@ -4,7 +4,6 @@
 #include <climits>
 #include <cstdarg>
 
-#include <iostream>
 #include <omp.h>
 
 namespace flatter {
@@ -126,7 +125,9 @@ void Monitor::start_problem(const std::string& prob, const std::string& impl,
     assert(current_prob_id != 0);
 }
 
-void Monitor::end_problem(const ComputationContext& cc) {
+void Monitor::end_problem(const std::string& prob, const std::string& impl,
+                        const std::string& header, const std::string& params,
+                        const ComputationContext& cc) {
     if (!has_logfile) {
         return;
     }
@@ -155,7 +156,7 @@ void Monitor::end_problem(const ComputationContext& cc) {
     first.duration = tp.end - first.start;
 
     if (tp.duration > 0.01 * first.duration) {
-        log("T ");
+        log("T[%s|%s] ", prob.c_str(), impl.c_str());
         // Print own type and ID
         log("%08x %08x ", tp.label, tp.prob_id);
         // Print parent ID
@@ -169,6 +170,18 @@ void Monitor::end_problem(const ComputationContext& cc) {
     }
 
     current_prob_id = tp.parent_id;
+}
+
+
+void Monitor::debug(const char* s, ...) {
+    if (!has_logfile) {
+        return;
+    }
+    va_list args;
+    va_start(args, s);
+    logbuf_offs += vsnprintf(logline_buf + logbuf_offs, LOGLINE_LEN - logbuf_offs, s, args);
+    assert(logbuf_offs < LOGLINE_LEN - 1);
+    va_end(args);
 }
 
 

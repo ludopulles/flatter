@@ -1,5 +1,6 @@
 #include "problems/lattice_reduction/fplll_impl.h"
 
+#include <ostream>
 #include <cassert>
 
 namespace flatter {
@@ -59,6 +60,9 @@ unsigned int FPLLL::get_block_size_for_rhf(double rhf) {
 
 void FPLLL::solve() {
     log_start();
+
+    mon->debug("M before FPLLL-call:\n");
+    debug_matrix();
 
     init_A();
 
@@ -156,6 +160,9 @@ void FPLLL::solve() {
 
         mon->profile_update(&params.L.profile[0], params.profile_offset, offset, offset + n);
     }
+
+    mon->debug("M after FPLLL-call:\n");
+    debug_matrix();
 
     log_end();
 }

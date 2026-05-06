@@ -1,6 +1,7 @@
 #include "problems/lattice_reduction.h"
 
 #include <cassert>
+#include <cstdio>
 #include <cstdlib>
 
 #include "cond_unknown.h"
