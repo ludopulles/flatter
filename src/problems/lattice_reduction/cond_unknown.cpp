@@ -55,27 +55,29 @@ void CondUnknown::configure(const LatticeReductionParams& p, const ComputationCo
 void CondUnknown::apply_U(const Matrix& U1, const Matrix& U2) {
     unsigned int k = U1.nrows();
     Matrix B_left = B.submatrix(0, B.nrows(), 0, k);
-    Matrix B_right;
+    Matrix U_left = U.submatrix(0, U.nrows(), 0, k);
     if (k < B.ncols()) {
-        B_right = B.submatrix(0, B.nrows(), k, B.ncols());
+        Matrix B_right = B.submatrix(0, B.nrows(), k, B.ncols());
+        MatrixMultiplication(B_right, B_left, U2, true, cc).solve();
 
-        MatrixMultiplication mm1 (B_right, B_left, U2, true, cc);
-        mm1.solve();
+        Matrix U_right = U.submatrix(0, U.nrows(), k, U.ncols());
+        MatrixMultiplication(U_right, U_left, U2, true, cc).solve();
     }
 
-    MatrixMultiplication mm2 (B_left, B_left, U1, false, cc);
-    mm2.solve();
+    MatrixMultiplication(B_left, B_left, U1, false, cc).solve();
+    MatrixMultiplication(U_left, U_left, U1, false, cc).solve();
 }
 
-void CondUnknown::apply_perm(const Matrix& U) {
-    MatrixData<mpz_t> dU = U.data<mpz_t>();
+void CondUnknown::apply_perm(const Matrix& U_sort) {
+    MatrixData<mpz_t> dU_sort = U_sort.data<mpz_t>();
     Matrix B2(ElementType::MPZ, B.nrows(), B.ncols());
+    Matrix U2(ElementType::MPZ, U.nrows(), U.ncols());
 
-    for (unsigned int j = 0; j < U.ncols(); j++) {
+    for (unsigned int j = 0; j < U_sort.ncols(); j++) {
         // Find where the vector should come from
         unsigned int src;
         for (src = 0; src < B.ncols(); src++) {
-            if (mpz_cmp_ui(dU(src, j), 1) == 0) {
+            if (mpz_cmp_ui(dU_sort(src, j), 1) == 0) {
                 break;
             }
         }
@@ -85,8 +87,13 @@ void CondUnknown::apply_perm(const Matrix& U) {
             B2.submatrix(0, B.nrows(), j, j+1),
             B.submatrix(0, B.nrows(), src, src+1)
         );
+        Matrix::copy(
+            U2.submatrix(0, U.nrows(), j, j+1),
+            U.submatrix(0, U.nrows(), src, src+1)
+        );
     }
     Matrix::copy(B, B2);
+    Matrix::copy(U, U2);
 }
 
 void CondUnknown::extract_similar(const Matrix& B, unsigned int prec, Matrix Bsim, Matrix U, unsigned int& num_valid, int& shift_amount, double& spread) {
@@ -268,11 +275,11 @@ bool CondUnknown::refine_basis() {
     Matrix U_2d;
     if (0 < num_valid && num_valid < B_sim.ncols()) {
         U_2d = U_2.submatrix(0, num_valid, num_valid, B_sim.ncols());
-        RelativeSizeReductionParams rsr_params (B_sim_indep, B_sim_dep, U_2d);
+        RelativeSizeReductionParams rsr_params(B_sim_indep, B_sim_dep, U_2d);
         RelativeSizeReduction rsr(rsr_params, cc);
         rsr.solve();
 
-        MatrixMultiplication mmsr (U_2d, U_2i, U_2d, cc);
+        MatrixMultiplication mmsr(U_2d, U_2i, U_2d, cc);
         mmsr.solve();
     }
 
